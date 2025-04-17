@@ -4,45 +4,32 @@ import { getUsers } from "./services/api";
 import AccountCard from "./components/AccountCard";
 import { History } from "./components/History";
 import { TransferForm } from "./components/TransferForm";
+import { useAppContext } from "./context/AppContext";
 
 export default function UserPage() {
-  const [user, setUser] = useState(null);
-  const [accounts, setAccounts] = useState([]);
+  //const [user, setUser] = useState(null);
+  const { user } = useAppContext();
   const [selectedAccount, setSelectedAccount] = useState(null);
-  const userId = "1134948394";
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await getUsers(userId);
-        setUser(res.data);
-        if (res.data?.products?.length) {
-          setSelectedAccount(res.data.products[0].id); 
-          setAccounts(res.data.products.map((p) => p.id));
-        }
-
-        console.log("Accounts:", accounts);
-      } catch (error) {
-        console.error("Error al obtener usuario:", error);
-      }
-    };
-
-    fetchUser();
-  }, []);
+    if (user && user.products.length > 0) {
+      setSelectedAccount(user.products[0].id);
+    }
+  }, [user]);
 
   return (
-    <main className="min-h-screen bg-black-50 p-8">
+    <section className="min-h-screen bg-black-50 p-8">
       {user ? (
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col lg:flex-row gap-4 mb-4">
             <div className="flex flex-col space-y-4 bg-white shadow-md rounded-lg p-5 w-full h-[400px]">
               <h2 className="text-2xl font-bold mb-4">Mis Cuentas</h2>
               {user.products.map((account) => (
                 <AccountCard key={account.id} account={account.id} />
               ))}
             </div>
-            <div className="flex flex-col space-y-4 bg-white shadow-md rounded-lg p-5 w-full ml-10 h-[400px]">
-              <h2 className="text-2xl font-bold mb-0">Transferencia Rapida</h2>
+            <div className="flex flex-col space-y-4 bg-white shadow-md rounded-lg p-5 w-full h-[400px]">
+              <h2 className="text-2xl font-bold mb-0">Transferencia Rápida</h2>
               <p className="text-gray-600">Transfiere dinero entre cuentas propias</p>
               <TransferForm accounts={user.products.map((p) => p.id)} />
             </div>
@@ -65,7 +52,7 @@ export default function UserPage() {
                   }`}
                   onClick={() => setSelectedAccount(account.id)}
                 >
-                  {account.alias || account.account_number}
+                  {account.id || ''}
                 </button>
               ))}
             </div>
@@ -76,6 +63,6 @@ export default function UserPage() {
       ) : (
         <p>Cargando usuario...</p>
       )}
-    </main>
+    </section>
   );
 }

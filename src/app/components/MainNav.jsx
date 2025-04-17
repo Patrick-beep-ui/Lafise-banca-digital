@@ -27,7 +27,7 @@ export function MainNav() {
 
   return (
     <div className="w-full flex items-center justify-between gap-6 md:gap-10 py-4 px-6 bg-white shadow-md">
-      <Link href="/dashboard" className="flex items-center space-x-2">
+      <Link href="/" className="flex items-center space-x-2">
         <span className="hidden font-bold sm:inline-block text-lg text-gray-800">Banco Digital</span>
       </Link>
       <nav className="flex gap-6">
