@@ -3,21 +3,21 @@ import { useEffect, useState } from "react";
 import AccountCard from "./components/AccountCard";
 import { History } from "./components/History";
 import { TransferForm } from "./components/TransferForm";
-import { useAppContext } from "./context/AppContext";
 
 export default function UserPage() {
-  //const [user, setUser] = useState(null);
-  const { user } = useAppContext();
+  const [user, setUser] = useState(null);
   const [selectedAccount, setSelectedAccount] = useState(null);
 
   useEffect(() => {
-    if (user && user.products.length > 0) {
-      setSelectedAccount(user.products[0].id);
-    }
+    const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+            setSelectedAccount(JSON.parse(storedUser).products[0].id); 
+        }
     else {
       window.location.href = '/login'; // Redirect to login if there is no user
     }
-  }, [user]);
+  }, []);
 
   return (
     <section className="min-h-screen bg-black-50 p-8">

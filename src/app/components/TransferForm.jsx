@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { createTransaction } from "../services/api";
+import { createTransaction, getAccounts } from "../services/api";
 
 export const TransferForm = ({ accounts = [], state = '' }) => {
   const [origin, setOrigin] = useState("");
@@ -8,12 +8,22 @@ export const TransferForm = ({ accounts = [], state = '' }) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [color, setColor] = useState("bg-green-500");
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
     setShowPopup(false);
+
+    // Validación de campos obligatorios
+    if (!origin || !destination || !amount) {
+      setMessage("Por favor, complete todos los campos obligatorios.");
+      setShowPopup(true);
+      setLoading(false);
+      return;
+    }
 
     try {
       const payload = {
@@ -24,6 +34,13 @@ export const TransferForm = ({ accounts = [], state = '' }) => {
           value: parseFloat(amount),
         },
       };
+
+      if (payload.amount.value > selectedAccount.balance) {
+        setMessage("El monto excede el saldo disponible.");
+        setColor("bg-red-500");
+        setShowPopup(true);
+        return;
+      }
 
       const response = await createTransaction(payload);
       setMessage(`Transferencia realizada con éxito. N°: ${response.data.transaction_number}`);
@@ -51,6 +68,16 @@ export const TransferForm = ({ accounts = [], state = '' }) => {
     }
   }, [showPopup]);
 
+  const getAccountData = useCallback(async (accountId) => {
+    try {
+      const res = await getAccounts(accountId);
+      setSelectedAccount(res.data);
+    }
+    catch (error) {
+      console.error("Error fetching account data:", error);
+    }
+  }, []);
+
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-4 transfer-form">
@@ -59,7 +86,10 @@ export const TransferForm = ({ accounts = [], state = '' }) => {
           <select
             id="origin"
             value={origin}
-            onChange={(e) => setOrigin(e.target.value)}
+            onChange={(e) => {
+              setOrigin(e.target.value);
+              getAccountData(e.target.value); 
+            }}
             className="mt-1 border rounded-md px-3 py-2 w-full"
             required
           >
@@ -68,6 +98,15 @@ export const TransferForm = ({ accounts = [], state = '' }) => {
               <option key={acc} value={acc}>{acc}</option>
             ))}
           </select>
+          {selectedAccount && state === 'link' && (
+            <div>
+              <p className="text-sm text-gray-500 mt-2">{selectedAccount.alias}</p>
+              <p className="text-sm text-gray-500">{parseFloat(selectedAccount.balance).toLocaleString("es-ES", {
+                style: "currency",
+                currency: selectedAccount.currency || "USD",
+              })}</p>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col">
@@ -125,7 +164,7 @@ export const TransferForm = ({ accounts = [], state = '' }) => {
 
       {/* Toast Popup */}
       {showPopup && (
-        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 animate-slide-in">
+        <div className={`fixed bottom-4 right-4 ${color} text-white px-4 py-2 rounded shadow-lg z-50 animate-slide-in`}>
           {message}
         </div>
       )}
