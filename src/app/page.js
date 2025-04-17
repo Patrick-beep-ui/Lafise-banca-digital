@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getUsers } from "./services/api";
 import AccountCard from "./components/AccountCard";
 import { History } from "./components/History";
 import { TransferForm } from "./components/TransferForm";
@@ -14,6 +13,9 @@ export default function UserPage() {
   useEffect(() => {
     if (user && user.products.length > 0) {
       setSelectedAccount(user.products[0].id);
+    }
+    else {
+      window.location.href = '/login'; // Redirect to login if there is no user
     }
   }, [user]);
 

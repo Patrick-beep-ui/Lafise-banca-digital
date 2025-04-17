@@ -26,13 +26,8 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-  };
-
   return (
-    <AppContext.Provider value={{ user, login, logout }}>
+    <AppContext.Provider value={{ user, login }}>
       {children}
     </AppContext.Provider>
   );
