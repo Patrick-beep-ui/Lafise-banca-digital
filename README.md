@@ -6,3 +6,6 @@ Pasos para Iniciar el proyecto:
 Notas:
 - Esta prueba fue meramente FrontEnd, no se toco nada del backend
 - Al usar APIs estaticas, no se actualiza la informacion, sin embargo cada consulta se ejecuta correctamente
+
+Detalles:
+- Mi maquina usa otra resolucion y olvide cambiarla, asi que que las medidas de las vistas no seran iguales y posiblemente haya un espacio a la derecha de cada vista
